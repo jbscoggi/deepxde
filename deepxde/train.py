@@ -56,7 +56,12 @@ def _get_learningrate(lr, decay):
             "inverse time": tf.train.inverse_time_decay(
                 lr, global_step, decay[1], decay[2]
             ),
-            "cosine": tf.train.cosine_decay(lr, global_step, decay[1], alpha=decay[2]),
+            "cosine": tf.train.cosine_decay(
+                lr, global_step, decay[1], alpha=decay[2]
+            ),
+            "exponential": tf.train.exponential_decay(
+                lr, global_step, decay_steps=decay[1], decay_rate=decay[2]
+            ),
         }[decay[0]],
         global_step,
     )
