@@ -69,13 +69,14 @@ class Model(object):
 
                 - `inverse time decay <https://www.tensorflow.org/api_docs/python/tf/compat/v1/train/inverse_time_decay>`_: ("inverse time", decay_steps, decay_rate)
                 - `cosine decay <https://www.tensorflow.org/api_docs/python/tf/compat/v1/train/cosine_decay>`_: ("cosine", decay_steps, alpha)
+                - `exponential decay <https://www.tensorflow.org/api_docs/python/tf/compat/v1/train/exponential_decay>`_: ("exponential", decay_steps, decay_rate)
 
             loss_weights: A list specifying scalar coefficients (Python floats)
                 to weight the loss contributions. The loss value that will be minimized by the model
                 will then be the weighted sum of all individual losses,
                 weighted by the loss_weights coefficients.
         """
-        print("Compiling model...")
+        print(f"Compiling model ({optimizer}, {loss})...")
 
         if not self.net.built:
             self.net.build()
@@ -200,11 +201,20 @@ class Model(object):
     def _open_tfsession(self):
         if self.sess is not None:
             return
+
         tfconfig = tf.ConfigProto()
         tfconfig.gpu_options.allow_growth = True
         self.sess = tf.Session(config=tfconfig)
+
+        # if True:
+        #     from tensorflow.python import debug as tf_debug
+        #     # self.sess = tf_debug.LocalCLIDebugWrapperSession(self.sess)
+        #     self.sess.add_tensor_filter("has_inf_or_nan", tf_debug.has_inf_or_nan)
+        
         self.saver = tf.train.Saver(max_to_keep=None)
         self.train_state.set_tfsession(self.sess)
+
+        
 
     def _close_tfsession(self):
         self.sess.close()
